@@ -16,14 +16,14 @@
   </properties>
 
   <dependencies>
-    <!-- Gson (필요시) -->
+    <!-- Gson (기존 필요시) -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>2.11.0</version>
     </dependency>
 
-    <!-- ✅ PDFBox: 반드시 dependencies 블록 안에 있어야 함 -->
+    <!-- PDFBox (PDF 생성) -->
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
@@ -33,6 +33,7 @@
 
   <build>
     <plugins>
+      <!-- 리소스 인코딩 -->
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.1</version>
@@ -41,35 +42,57 @@
         </configuration>
       </plugin>
 
-      <!-- 실행 가능한 JAR -->
+      <!-- 기본 JAR의 메인 클래스: 기존 앱 유지 -->
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.4.1</version>
         <configuration>
           <archive>
             <manifest>
-              <!-- ✅ 패키지 포함 전체 클래스명으로 바꾸세요 -->
+              <!-- ⬇ 기존 메인 클래스로 유지 -->
               <mainClass>com.example.HashMapToJsonExample</mainClass>
             </manifest>
           </archive>
         </configuration>
       </plugin>
 
-      <!-- 의존성 포함 Uber-JAR -->
+      <!-- 의존성 포함 Uber-JAR(2개 생성): 기본/추가 각각 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.5.3</version>
         <executions>
+          <!-- 1) 기본 앱용 shaded JAR (기존 메인) -->
           <execution>
+            <id>shade-default-app</id>
             <phase>package</phase>
             <goals><goal>shade</goal></goals>
             <configuration>
+              <finalName>${project.artifactId}-${project.version}-shaded</finalName>
               <createDependencyReducedPom>true</createDependencyReducedPom>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <!-- ✅ 여기도 동일하게 -->
                   <mainClass>com.example.HashMapToJsonExample</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+
+          <!-- 2) PDF 전용 shaded JAR (다른 파일명/메인) -->
+          <execution>
+            <id>shade-voyage-pdf</id>
+            <phase>package</phase>
+            <goals><goal>shade</goal></goals>
+            <configuration>
+              <!-- 구분되는 산출물명 -->
+              <finalName>${project.artifactId}-${project.version}-voyage-pdf</finalName>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>voyage-pdf</shadedClassifierName>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <!-- ⬇ PDF 생성 메인 클래스 -->
+                  <mainClass>com.sample.GenerateVoyagePdf</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -77,12 +100,13 @@
         </executions>
       </plugin>
 
-      <!-- mvn exec:java 로 실행할 때도 동일하게 -->
+      <!-- mvn exec:java 로 단발 실행할 때 메인 지정 편의 -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.3.0</version>
         <configuration>
+          <!-- 기본값은 기존 메인 -->
           <mainClass>com.example.HashMapToJsonExample</mainClass>
         </configuration>
       </plugin>

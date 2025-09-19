@@ -19,7 +19,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.sample.PdfBoxExample</mainClass>
+              <mainClass>com.example.HashMapToJsonExample</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -29,15 +29,35 @@
         <version>3.5.3</version>
         <executions>
           <execution>
+            <id>shade-default-app</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
+              <finalName>${project.artifactId}-${project.version}-shaded</finalName>
               <createDependencyReducedPom>true</createDependencyReducedPom>
               <transformers>
                 <transformer>
-                  <mainClass>com.sample.PdfBoxExample</mainClass>
+                  <mainClass>com.example.HashMapToJsonExample</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+          <execution>
+            <id>shade-voyage-pdf</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <finalName>${project.artifactId}-${project.version}-voyage-pdf</finalName>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>voyage-pdf</shadedClassifierName>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <transformer>
+                  <mainClass>com.sample.GenerateVoyagePdf</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -49,7 +69,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.3.0</version>
         <configuration>
-          <mainClass>com.sample.PdfBoxExample</mainClass>
+          <mainClass>com.example.HashMapToJsonExample</mainClass>
         </configuration>
       </plugin>
     </plugins>
